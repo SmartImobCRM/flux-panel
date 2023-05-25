@@ -13,5 +13,5 @@ export const userRouter = createTRPCRouter({
     getAll: privateProcedure.query(async ({ ctx }) => {
         const userData = await prisma.user.findMany();
         return userData;
-    })
+    }),
 });
