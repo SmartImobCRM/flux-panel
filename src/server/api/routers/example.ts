@@ -5,7 +5,7 @@ import uid from 'tiny-uid';
 import { faker } from '@faker-js/faker';
 
 export const exampleRouter = createTRPCRouter({
-  createUser: publicProcedure.query(async ({ ctx, input }) => {
+  createUser: publicProcedure.query( ({ ctx, input }) => {
     console.log(input)
     return {input, ctx}
   }),
