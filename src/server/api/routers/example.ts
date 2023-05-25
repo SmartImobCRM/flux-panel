@@ -7,7 +7,7 @@ import { faker } from '@faker-js/faker';
 export const exampleRouter = createTRPCRouter({
   createUser: publicProcedure.query(async ({ ctx, input }) => {
     console.log(input)
-    
+    return {input, ctx}
   }),
   hello: publicProcedure
     .input(z.object({ text: z.string() }))
