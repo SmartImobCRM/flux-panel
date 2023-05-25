@@ -2,7 +2,7 @@ import type { WebhookEvent } from "@clerk/clerk-sdk-node"
 import { NextApiRequest, NextApiResponse } from 'next';
 
 const handler = (req: NextApiRequest, res: NextApiResponse) => {
-    const evt = req.body.evt as WebhookEvent; 
+    const evt = (req.body as { evt: WebhookEvent }).evt; 
     switch (evt.type) {
         case 'user.created': // this is typed
             console.log('user created', evt.data.id)
