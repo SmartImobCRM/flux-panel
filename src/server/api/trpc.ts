@@ -24,15 +24,28 @@ import { prisma } from "~/server/db";
  *
  * @see https://trpc.io/docs/context
  */
-export const createTRPCContext = (opts: CreateNextContextOptions) => {
+export const createTRPCContext = async (opts: CreateNextContextOptions) => {
   const { req } = opts;
   const sesh = getAuth(req);
 
   const userId = sesh.userId;
+  if (!userId) {
+    return {
+      prisma,
+      userId,
+      user: null,
+    };
+  }
+  const user = await prisma.user.findUnique({
+    where: {
+      id: userId || undefined,
+    },
+  })
 
   return {
     prisma,
     userId,
+    user
   };
 };
 
@@ -93,8 +106,39 @@ const enforceUserIsAuthed = t.middleware(async ({ ctx, next }) => {
   return next({
     ctx: {
       userId: ctx.userId,
+      user: ctx.user,
+    },
+  });
+});
+
+
+const enforceUserIsAdmin = t.middleware(async ({ ctx, next }) => {
+  if (!ctx.user) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+    });
+  }
+
+  const userData = await prisma.user.findFirst({ where: { id: ctx.user?.id } })
+  if (!userData) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+    });
+  }
+
+  if (!userData.isAdmin) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+    });
+  }
+
+  return next({
+    ctx: {
+      user: ctx.user,
+      userId: ctx.userId,
     },
   });
 });
 
 export const privateProcedure = t.procedure.use(enforceUserIsAuthed);
+export const isAdminProcedure = t.procedure.use(enforceUserIsAdmin);
