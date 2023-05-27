@@ -1,18 +1,30 @@
-// page/_app.tsx
-import { ClerkProvider } from "@clerk/nextjs";
-import type { AppProps } from "next/app";
-import { api } from "~/utils/api"; 
-import "~/styles/globals.css";
-import { ReactNode } from "react";
+import { AppProps, type AppType } from "next/app";
+import { api } from "~/utils/api";
+import { createBrowserSupabaseClient } from '@supabase/auth-helpers-nextjs'
+import { SessionContextProvider, Session } from '@supabase/auth-helpers-react'
+import { ReactNode, useState } from 'react'
 
-function MyApp({ Component, pageProps }: AppProps) {
+import "~/styles/globals.css";
+import Overseer from "../components/overseer";
+
+function MyApp({
+  Component,
+  pageProps,
+}: AppProps<{
+  initialSession: Session
+}>) {
+  // Create a new supabase browser client on every first render.
+  const [supabaseClient] = useState(() => createBrowserSupabaseClient())
   const getLayout: (page: ReactNode) => ReactNode = (Component as unknown as { getLayout: () => ReactNode }).getLayout || ((page: ReactNode) => page);
-  
   return (
-    <ClerkProvider {...pageProps}>
-      {getLayout(<Component {...pageProps} />)}
-    </ClerkProvider>
-  );
+    <SessionContextProvider
+      supabaseClient={supabaseClient}
+      initialSession={pageProps.initialSession}
+    >
+      <Overseer>
+        {getLayout(<Component {...pageProps} />)}
+      </Overseer>
+    </SessionContextProvider>
+  )
 }
- 
 export default api.withTRPC(MyApp);

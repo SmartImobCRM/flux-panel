@@ -1,4 +1,4 @@
-import { SignInButton, UserButton, useUser } from "@clerk/nextjs";
+
 import { type NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
@@ -32,26 +32,21 @@ import {
 } from '@heroicons/react/24/outline'
 import { Bars3Icon, ChevronRightIcon, MagnifyingGlassIcon } from '@heroicons/react/20/solid'
 import classNames from "~/utils/classnames";
+import { formatTimeAgo } from "~/utils/datestuff";
+import { useRouter } from "next/router";
+import { useSupabaseClient } from "@supabase/auth-helpers-react";
 
-const navigation = [
-  { name: 'Projects', href: '/projetos', icon: FolderIcon, current: false },
-  { name: 'Migrações', href: '/', icon: ServerIcon, current: true },
-  { name: 'Activity', href: '#', icon: SignalIcon, current: false },
-  { name: 'Domains', href: '#', icon: GlobeAltIcon, current: false },
-  { name: 'Usages', href: '#', icon: ChartBarSquareIcon, current: false },
-  { name: 'Usuários', href: '/users', icon: UserIcon, current: false },
-  { name: 'Settings', href: '#', icon: Cog6ToothIcon, current: false },
-]
-const teams = [
+const datasets = [
   { id: 1, name: 'Planetaria', href: '#', initial: 'P', current: false },
   { id: 2, name: 'Protocol', href: '#', initial: 'P', current: false },
   { id: 3, name: 'Tailwind Labs', href: '#', initial: 'T', current: false },
 ]
 const statuses = {
-  offline: 'text-gray-500 bg-gray-100/10',
-  online: 'text-green-400 bg-green-400/10',
+  info: 'text-slate-100 bg-slate-100/10',
+  green: 'text-green-400 bg-green-400/10',
   error: 'text-rose-400 bg-rose-400/10',
 }
+
 const environments = {
   Preview: 'text-gray-400 bg-gray-400/10 ring-gray-400/20',
   Production: 'text-indigo-400 bg-indigo-400/10 ring-indigo-400/30',
@@ -69,7 +64,7 @@ const deployments = [
   },
   // More deployments...
 ]
-const activityItems = [
+const actions = [
   {
     user: {
       name: 'Michael Foster',
@@ -85,12 +80,25 @@ const activityItems = [
   // More items...
 ]
 
-
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const hello = api.example.hello.useQuery({ text: "from tRPC" });
-  const user = useUser()
   
+  const urlParams = new URLSearchParams(window.location.search)
+  const { data: actions } = api.action.getActionsMain.useQuery()
+  const sb = useSupabaseClient()
+  const Sair = () => {
+    sb.auth.signOut()
+  }
+  const navigation = [
+    //{ name: 'Datasets', href: '/dataset', icon: FolderIcon, current: asPath === '/dataset'  },
+    { name: 'Migrações', href: '/', icon: ServerIcon, current: true },
+    //{ name: 'Activity', href: '#', icon: SignalIcon, current: false },
+    //{ name: 'Domains', href: '#', icon: GlobeAltIcon, current: false },
+    //{ name: 'Usages', href: '#', icon: ChartBarSquareIcon, current: false },
+    //{ name: 'Usuários', href: '/users', icon: UserIcon, current: false },
+    //{ name: 'Settings', href: '#', icon: Cog6ToothIcon, current: false },
+  ]
+
   return (
     <>
       {/*
@@ -174,29 +182,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                             ))}
                           </ul>
                         </li>
-                        <li>
-                          <div className="text-xs font-semibold leading-6 text-gray-400">Your teams</div>
-                          <ul role="list" className="-mx-2 mt-2 space-y-1">
-                            {teams.map((team) => (
-                              <li key={team.name}>
-                                <a
-                                  href={team.href}
-                                  className={classNames(
-                                    team.current
-                                      ? 'bg-gray-800 text-white'
-                                      : 'text-gray-400 hover:text-white hover:bg-gray-800',
-                                    'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
-                                  )}
-                                >
-                                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-gray-700 bg-gray-800 text-[0.625rem] font-medium text-gray-400 group-hover:text-white">
-                                    {team.initial}
-                                  </span>
-                                  <span className="truncate">{team.name}</span>
-                                </a>
-                              </li>
-                            ))}
-                          </ul>
-                        </li>
+                        
                         <li className="-mx-6 mt-auto">
                           <a
                             href="#"
@@ -227,7 +213,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <div className="flex h-16 shrink-0 items-center">
               <img
                 className="h-8 w-auto"
-                src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500"
+                src="/icon_logo.svg"
                 alt="Your Company"
               />
             </div>
@@ -253,42 +239,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     ))}
                   </ul>
                 </li>
-                <li>
-                  <div className="text-xs font-semibold leading-6 text-gray-400">Your teams</div>
-                  <ul role="list" className="-mx-2 mt-2 space-y-1">
-                    {teams.map((team) => (
-                      <li key={team.name}>
-                        <a
-                          href={team.href}
-                          className={classNames(
-                            team.current
-                              ? 'bg-gray-800 text-white'
-                              : 'text-gray-400 hover:text-white hover:bg-gray-800',
-                            'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
-                          )}
-                        >
-                          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-gray-700 bg-gray-800 text-[0.625rem] font-medium text-gray-400 group-hover:text-white">
-                            {team.initial}
-                          </span>
-                          <span className="truncate">{team.name}</span>
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                </li>
+                
                 <li className="-mx-6 mt-auto">
                   <a
                     href="#"
                     className="flex items-center gap-x-4 px-6 py-3 text-sm font-semibold leading-6 text-white hover:bg-gray-800"
                   >
-                    <img
-                      className="h-8 w-8 rounded-full bg-gray-800"
-                      src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                      alt=""
-                    />
-                    <span className="sr-only">Your profile</span>
-                    <span aria-hidden="true">Tom Cook</span>
-                            <UserButton/>
+                    <span onClick={() => Sair()} aria-hidden="true">Sair</span>
                   </a>
                 </li>
               </ul>
@@ -331,25 +288,42 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           {/* Activity feed */}
           <aside className="bg-black/10 lg:fixed lg:bottom-0 lg:right-0 lg:top-16 lg:w-96 lg:overflow-y-auto lg:border-l lg:border-white/5">
             <header className="flex items-center justify-between border-b border-white/5 px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
-              <h2 className="text-base font-semibold leading-7 text-white">Activity feed</h2>
+              <h2 className="text-base font-semibold leading-7 text-white">Feed de ações</h2>
               <a href="#" className="text-sm font-semibold leading-6 text-indigo-400">
-                View all
+                Ver tudo
               </a>
             </header>
             <ul role="list" className="divide-y divide-white/5">
-              {activityItems.map((item) => (
-                <li key={item.commit} className="px-4 py-4 sm:px-6 lg:px-8">
+              {actions?.map((action) => (
+                <li key={action.id} className="px-4 py-4 sm:px-6 lg:px-8">
                   <div className="flex items-center gap-x-3">
-                    <img src={item.user.imageUrl} alt="" className="h-6 w-6 flex-none rounded-full bg-gray-800" />
-                    <h3 className="flex-auto truncate text-sm font-semibold leading-6 text-white">{item.user.name}</h3>
-                    <time dateTime={item.dateTime} className="flex-none text-xs text-gray-600">
-                      {item.date}
+                    
+                    <div className={classNames(statuses[action.type as 'error'], 'flex-none rounded-full p-1')}>
+                      {
+                        action.type !== 'info' && <span className="animate-ping absolute h-2 w-2 rounded-full bg-current"></span>
+                      }
+                      <div className="h-2 w-2 rounded-full bg-current" />
+                    </div>
+                    <h3 className="flex-auto truncate text-sm font-semibold leading-6 text-white">{action.title}</h3>
+                    <time dateTime={action.createdAt.toString()} className="flex-none text-xs text-gray-600">
+                      {formatTimeAgo(action.createdAt)}
                     </time>
                   </div>
                   <p className="mt-3 truncate text-sm text-gray-500">
-                    Pushed to <span className="text-gray-400">{item.projectName}</span> (
-                    <span className="font-mono text-gray-400">{item.commit}</span> on{' '}
-                    <span className="text-gray-400">{item.branch}</span>)
+                    
+                    {
+                      action.payload && JSON.stringify(action.payload) !== '{}' && <span
+                       className="font-mono text-gray-400">Possui Payload</span>
+                    }
+                    {' '}
+                    Data: <span className="text-gray-400">{action.createdAt.toLocaleDateString('pt-BR', {
+                      day: 'numeric',
+                      month: 'numeric',
+                      year: 'numeric',
+                      hour: 'numeric',
+                      minute: 'numeric',
+                      second: 'numeric'
+                    })}</span>
                   </p>
                 </li>
               ))}

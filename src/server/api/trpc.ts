@@ -6,7 +6,6 @@
  * TL;DR - This is where all the tRPC server stuff is created and plugged in. The pieces you will
  * need to use are documented accordingly near the end.
  */
-
 /**
  * 1. CONTEXT
  *
@@ -18,45 +17,43 @@ import { type CreateNextContextOptions } from "@trpc/server/adapters/next";
 
 import { prisma } from "~/server/db";
 
+import { createClient } from '@supabase/supabase-js';
+export const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL as string, process.env.SUPABASE_SERVICE as string);
+
 /**
  * This is the actual context you will use in your router. It will be used to process every request
  * that goes through your tRPC endpoint.
  *
  * @see https://trpc.io/docs/context
  */
+
+
 export const createTRPCContext = async (opts: CreateNextContextOptions) => {
   const { req } = opts;
-  const sesh = getAuth(req);
-
-  const userId = sesh.userId;
-  if (!userId) {
-    return {
-      prisma,
-      userId,
-      user: null,
-    };
+  const getUserID = async () => {
+    const auth_token_string = req.cookies['sb-hkvphicusywoaqmfbwcw-auth-token'] || req.cookies['supabase-auth-token']
+    if (auth_token_string) {
+      const jwt = auth_token_string.split(',')[0]?.replace('[','').replaceAll('"','')
+      
+      return await supabase.auth.getUser(jwt)
+    } else return false
   }
-  const user = await prisma.user.findUnique({
-    where: {
-      id: userId || undefined,
-    },
-  })
-
+  const getUserIDResponse = await getUserID()
   return {
     prisma,
-    userId,
-    user
+    user: getUserIDResponse ? getUserIDResponse.data.user : null,
   };
 };
 
 /**
  * 2. INITIALIZATION
  *
- * This is where the tRPC API is initialized, connecting the context and transformer.
+ * This is where the tRPC API is initialized, connecting the context and transformer. We also parse
+ * ZodErrors so that you get typesafety on the frontend if your procedure fails due to validation
+ * errors on the backend.
  */
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
-import { getAuth } from "@clerk/nextjs/server";
 import { ZodError } from "zod";
 
 const t = initTRPC.context<typeof createTRPCContext>().create({
@@ -96,8 +93,10 @@ export const createTRPCRouter = t.router;
  */
 export const publicProcedure = t.procedure;
 
+
 const enforceUserIsAuthed = t.middleware(async ({ ctx, next }) => {
-  if (!ctx.userId) {
+
+  if (!ctx.user) {
     throw new TRPCError({
       code: "UNAUTHORIZED",
     });
@@ -105,14 +104,13 @@ const enforceUserIsAuthed = t.middleware(async ({ ctx, next }) => {
 
   return next({
     ctx: {
-      userId: ctx.userId,
       user: ctx.user,
     },
   });
 });
 
-
 const enforceUserIsAdmin = t.middleware(async ({ ctx, next }) => {
+  console.log(ctx.user)
   if (!ctx.user) {
     throw new TRPCError({
       code: "UNAUTHORIZED",
@@ -135,10 +133,9 @@ const enforceUserIsAdmin = t.middleware(async ({ ctx, next }) => {
   return next({
     ctx: {
       user: ctx.user,
-      userId: ctx.userId,
     },
   });
 });
 
 export const privateProcedure = t.procedure.use(enforceUserIsAuthed);
-export const isAdminProcedure = t.procedure.use(enforceUserIsAdmin);
+export const adminProcedure = t.procedure.use(enforceUserIsAdmin);

@@ -1,5 +1,4 @@
 import Layout from "./layout"
-import { SignInButton, UserButton, useUser } from "@clerk/nextjs";
 import { type NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
@@ -96,7 +95,7 @@ const people = [
   ]
   
 export function UsersTable() {
-    
+
     return (
       <div className="px-4 sm:px-6 lg:px-8">
         <div className="sm:flex sm:items-center">

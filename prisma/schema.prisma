@@ -12,54 +12,32 @@ datasource db {
 }
 
 model User {
-  id        String   @id 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  isAdmin   Boolean  @default(false)
-  email     String   @unique
+  id      String  @id
+  isAdmin Boolean @default(false)
+  email   String  @unique
 }
 
-model DataSource {
-  id          String   @id
-  createdAt   DateTime @default(now())
-  name        String   @unique
-  type        String
-  description String?
-
-  url            String
-  DataSourceLink DataSourceLink[]
-}
-
-model DataSourceLink {
-  dataSource   DataSource @relation(fields: [dataSourceId], references: [id])
-  dataSourceId String
-  dataSet      DataSet    @relation(fields: [dataSetId], references: [id])
-  dataSetId    String
-
-  @@id([dataSourceId, dataSetId])
-  @@index([dataSetId])
-  @@index([dataSourceId])
-}
-
-model DataSet {
-  id             String           @id
-  createdAt      DateTime         @default(now())
-  name           String           @unique
-  description    String?
-  DataSourceLink DataSourceLink[]
-  Migracao       Migracao[]
-}
 
 model Migracao {
-  status    String   @default("pendente")
+  status    String   @default("pendente") // pendente, em andamento, concluido, erro
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @default(now()) @updatedAt
   progress  Int      @default(0)
-  serverId  String
-  dataSetId String
-  dataSet   DataSet  @relation(fields: [dataSetId], references: [id])
   name      String
+  nImoveis  Int      @default(0)
   paused    Boolean  @default(false)
   id        String   @id
-  @@index([dataSetId])
+  Action   Action[]
+}
+
+model Action {
+  migracaoId String  @default("1")
+  Migracao  Migracao @relation(fields: [migracaoId], references: [id])
+  id        String   @id
+  createdAt DateTime @default(now())
+  type      String   @default("info") // info, error, green
+  payload   Json
+  title     String
+
+  @@index([migracaoId])
 }
