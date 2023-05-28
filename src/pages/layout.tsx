@@ -86,8 +86,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const urlParams = new URLSearchParams(window.location.search)
   const { data: actions } = api.action.getActionsMain.useQuery()
   const sb = useSupabaseClient()
-  const Sair = () => {
-    sb.auth.signOut()
+  const Sair = async () => {
+    await sb.auth.signOut()
   }
   const navigation = [
     //{ name: 'Datasets', href: '/dataset', icon: FolderIcon, current: asPath === '/dataset'  },
@@ -245,7 +245,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     href="#"
                     className="flex items-center gap-x-4 px-6 py-3 text-sm font-semibold leading-6 text-white hover:bg-gray-800"
                   >
-                    <span onClick={() => Sair()} aria-hidden="true">Sair</span>
+                    <span onClick={() =>void Sair()} aria-hidden="true">Sair</span>
                   </a>
                 </li>
               </ul>

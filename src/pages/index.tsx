@@ -81,7 +81,7 @@ export default function Page() {
   const handleFetchNextPage = () => {
     // if last page number of itens is less than limit, then there is no next page
     if ((data?.pages[page]?.items || []).length < 10) return;
-    fetchNextPage();
+    fetchNextPage().then(console.log).catch(console.error);
     setPage((prev) => prev + 1);
   };
 

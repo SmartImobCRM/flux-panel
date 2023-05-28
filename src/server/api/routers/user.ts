@@ -40,7 +40,7 @@ export const userRouter = createTRPCRouter({
                     }
                 })
             } catch (error) {
-                    throw new Error('upsertError: '+error)
+                    throw new Error('upsertError: '+String(error))
             }
         }
         return { password: input.password, email: input.email }
