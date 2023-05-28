@@ -8,13 +8,5 @@ await import("./src/env.mjs");
 const config = {
   reactStrictMode: true,
 
-  async rewrites() {
-    return [
-      {
-        source: '/api/:path*',
-        destination: 'https://flux-panel.vercel.app/:path*',
-      },
-    ]
-  },
 };
 export default config;
