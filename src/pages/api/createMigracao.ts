@@ -10,6 +10,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
      optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
   });
     const body = req.body as { [key:string]:any };
+    if (!req.body) return res.status(400).json({ok:false,error:'no body'})
     try {
         const Migracao = await prisma.migracao.create({
             data: {
@@ -18,7 +19,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         })
         res.json({idMigracao:Migracao.id})
     } catch (error) {
-        res.send(error)
+        res.status(400).json({ok:false, error})
     }
 }
 export default handler;
