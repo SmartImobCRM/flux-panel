@@ -14,7 +14,11 @@ const cors = Cors({
 function runMiddleware(
   req: NextApiRequest,
   res: NextApiResponse,
-  fn: Function
+  fn: (req: Cors.CorsRequest, res: {
+    statusCode?: number | undefined;
+    setHeader(key: string, value: string): any;
+    end(): any;
+}, next: (err?: any) => any) => void
 ) {
   return new Promise((resolve, reject) => {
     fn(req, res, (result: any) => {
