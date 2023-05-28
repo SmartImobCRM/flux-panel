@@ -13,17 +13,18 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
  
     if (!req.body) return res.status(400).json({ok:false,error:'no body'})
 
-    const body = req.body as { [key:string]:any };
+    const body = JSON.parse(req.body) as { [key:string]:any };
     try {
-        await prisma.action.create({
+        const action = await prisma.action.create({
             data: {
                 ...(body.createPayload as { [key:string]:any }),
                 createdAt: new Date(),
             } as Prisma.ActionCreateInput,
         })
+        console.log('action',action)
         res.json({ok:true})
     } catch (error) {
-        res.status(400).json({ok:false, error})
+        res.status(400).json({ok:false, error, body })
     }
 }
 export default handler;
