@@ -2,7 +2,7 @@ import { Prisma } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
 import NextCors from "nextjs-cors";
 import { prisma } from "~/server/db";
-
+import uid from 'tiny-uid'
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     await NextCors(req, res, {
      methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
@@ -14,6 +14,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     try {
         const Migracao = await prisma.migracao.create({
             data: {
+                uid: uid(),
                 ...body.createPayload,
             } as Prisma.MigracaoCreateInput,
         })

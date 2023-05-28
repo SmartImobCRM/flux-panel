@@ -2,6 +2,7 @@ import { Prisma } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
 import NextCors from "nextjs-cors";
 import { prisma } from "~/server/db";
+import uid from 'tiny-uid';
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     
@@ -17,6 +18,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     try {
         const action = await prisma.action.create({
             data: {
+                id: uid(),
                 ...(body.createPayload as { [key:string]:any }),
                 createdAt: new Date(),
             } as Prisma.ActionCreateInput,
