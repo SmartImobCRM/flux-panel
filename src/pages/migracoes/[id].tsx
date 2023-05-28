@@ -17,7 +17,8 @@ import Layout from "../layout"
   ```
 */
 import { Fragment, useState } from 'react'
-import { Dialog, Transition } from '@headlessui/react'
+import * as Dialog from '@radix-ui/react-dialog';
+import { Cross2Icon } from '@radix-ui/react-icons';
 import {
   ChartBarSquareIcon,
   Cog6ToothIcon,
@@ -92,7 +93,7 @@ export default function Page() {
     const { actions } = data;
     const getActionsFromMigracao = actions;
     const stats = [
-        { name: 'Progresso', value: getMigracao?.progress, unit: '%' },
+        { name: 'Progresso', value: getMigracao?.progress, },
         { name: 'Ações verdes', value: getActionsFromMigracao?.filter(action => action.type === 'green').length },
         { name: 'Total de imóveis', value: getMigracao.nImoveis },
         { name: 'Erros', value: getActionsFromMigracao?.filter(action => action.type === 'error').length },
@@ -175,7 +176,7 @@ export default function Page() {
                     <p className="text-sm font-medium leading-6 text-gray-400">{stat.name}</p>
                     <p className="mt-2 flex items-baseline gap-x-2">
                       <span className="text-4xl font-semibold tracking-tight text-white">{stat.value}</span>
-                      {stat.unit ? <span className="text-sm text-gray-400">{stat.unit}</span> : null}
+                      
                     </p>
                   </div>
                 ))}
@@ -223,6 +224,33 @@ export default function Page() {
                           <div className={classNames(statuses[action.type as 'error'], 'flex-none rounded-full p-1')}>
                             <div className="h-1.5 w-1.5 rounded-full bg-current" />
                           </div>
+                          <Dialog.Root>
+                            <Dialog.Trigger asChild>
+                              {
+                                (action.payload && JSON.stringify(action.payload) !== '{}') && <span className="cursor-pointer text-sm font-medium leading-6 text-white">Ver payload</span>
+                              }
+                            </Dialog.Trigger>
+                            <Dialog.Portal>
+                              <Dialog.Overlay className="bg-blackA9 data-[state=open]:animate-overlayShow fixed inset-0" />
+                              <Dialog.Content className="data-[state=open]:animate-contentShow fixed top-[50%] left-[50%] max-h-[85vh] w-[90vw] max-w-[450px] translate-x-[-50%] translate-y-[-50%] rounded-[6px] bg-white p-[25px] shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px,_hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px] focus:outline-none">
+                                <Dialog.Title className="text-mauve12 m-0 text-[17px] font-medium">
+                                  Payload de: <span>{action.title}</span>
+                                </Dialog.Title>
+                                <Dialog.Description className="text-mauve11 mt-[10px] mb-5 text-[15px] leading-normal">
+                                  {JSON.stringify(action.payload, null, 2)}
+                                </Dialog.Description>
+                                
+                                <Dialog.Close asChild>
+                                  <button
+                                    className="text-violet11 hover:bg-violet4 focus:shadow-violet7 absolute top-[10px] right-[10px] inline-flex h-[25px] w-[25px] appearance-none items-center justify-center rounded-full focus:shadow-[0_0_0_2px] focus:outline-none"
+                                    aria-label="Close"
+                                  >
+                                    <Cross2Icon />
+                                  </button>
+                                </Dialog.Close>
+                              </Dialog.Content>
+                            </Dialog.Portal>
+                          </Dialog.Root>
                         </div>
                       </td>
                       <td className="hidden py-4 pl-0 pr-8 text-sm leading-6 text-gray-400 md:table-cell lg:pr-20">
