@@ -22,7 +22,7 @@ model Migracao {
   status    String   @default("pendente") // pendente, em andamento, concluido, erro
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
-  progress  Int      @default(0)
+  doneImoveis  Int      @default(0)
   name      String
   nImoveis  Int      @default(0)
   paused    Boolean  @default(false)

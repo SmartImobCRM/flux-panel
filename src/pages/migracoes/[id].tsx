@@ -93,7 +93,7 @@ export default function Page() {
     const { actions } = data;
     const getActionsFromMigracao = actions;
     const stats = [
-        { name: 'Progresso', value: getMigracao?.progress, },
+        { name: 'Imóveis finalizados', value: getMigracao?.doneImoveis, },
         { name: 'Ações verdes', value: getActionsFromMigracao?.filter(action => action.type === 'green').length },
         { name: 'Total de imóveis', value: getMigracao.nImoveis },
         { name: 'Erros', value: getActionsFromMigracao?.filter(action => action.type === 'error').length },

@@ -91,7 +91,7 @@ export default function Page() {
   };
   
   const toShow = data?.pages[page]?.items;
-  
+  const XisWhatPercentOfY = (x:number, y:number) => x / y * 100;
   return <main className="lg:pr-96">
     <header className="flex items-center justify-between border-b border-white/5 px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
       <h1 className="text-base font-semibold leading-7 text-white">Migrações</h1>
@@ -133,17 +133,30 @@ export default function Page() {
             </div>
           </div>
           {
-            migracao.paused && <div
+            migracao.paused ? <div
               className={classNames(
                 environments['Production'],
                 'rounded-full flex-none py-1 px-2 text-xs font-medium ring-1 ring-inset'
               )}
             >
-              Migração pausada
+              Migração pausada {`${(XisWhatPercentOfY(migracao.doneImoveis, migracao.nImoveis))}%`}
+            </div>
+            : <div
+              className={classNames(
+                environments['Preview'],
+                'rounded-full flex-none py-1 px-2 text-xs font-medium ring-1 ring-inset'
+              )}
+            >
+              Em andamento {`${(XisWhatPercentOfY(migracao.doneImoveis, migracao.nImoveis))}%`}
             </div>
           }
           <ChevronRightIcon className="h-5 w-5 flex-none text-gray-400" aria-hidden="true" />
         </li>
+        <div className="h-1 w-full">
+          <div style={{
+            width: `${(XisWhatPercentOfY(migracao.doneImoveis, migracao.nImoveis))}%`
+          }} className={`h-full bg-green-500`}></div>
+        </div>
         </Link>
       ))}
     </ul>
