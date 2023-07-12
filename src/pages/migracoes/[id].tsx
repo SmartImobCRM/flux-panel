@@ -85,7 +85,7 @@ const statusesMigracao = {
 
 export default function Page() {
     const {query: { id }} = useRouter()
-    const [page, setPage] = useState('dash')
+    const [page, setPage] = useState('dash') // <'dash' | 'config'>
     const { data: getMigracao, isLoading: isLoadingGetMigracao } = api.migracao.getMigracao.useQuery({ id: id as string })
     const { data, isLoading: isLoadingGetActionsFromMigracao } = api.action.getActionsFromMigracao.useQuery({ id: id as string })
     if (isLoadingGetMigracao || isLoadingGetActionsFromMigracao) return <div></div>

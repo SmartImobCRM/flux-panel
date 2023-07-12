@@ -14,6 +14,17 @@ export const userRouter = createTRPCRouter({
         const userData = await prisma.user.findMany();
         return userData;
     }),
+    // __addAdmToUser: privateProcedure.input(z.object({ id: z.string() })).mutation(async ({ ctx, input }) => {
+    //     await prisma.user.update({
+    //         where: {
+    //             id: input.id,
+    //         },
+    //         data: {
+    //             isAdmin: true,
+    //         }
+    //     })
+    //     return true;
+    // }),
     createUser: publicProcedure.input(z.object({ 
         email: z.string(), 
         password: z.string(),
